@@ -269,7 +269,7 @@ def admin_dashboard():
         
     conn = db()
     c = conn.cursor()
-    users = execute_query(c, "SELECT * FROM users WHERE role = 'staff' ORDER BY created_at DESC").fetchall()
+    users = execute_query(c, "SELECT * FROM users ORDER BY created_at DESC").fetchall()
     conn.close()
     
     return render_template("admin.html", users=users)
@@ -392,14 +392,14 @@ with app.app_context():
         # Create default admin if it doesn't exist
         conn = db()
         c = conn.cursor()
-        execute_query(c, "SELECT * FROM users WHERE username = 'admin'")
+        execute_query(c, "SELECT * FROM users WHERE username = 'KaxHafeni'")
+
         if not c.fetchone():
             execute_query(c, """
                 INSERT INTO users (full_name, phone, location, username, password_hash, role)
-                VALUES ('System Admin', '0000000000', 'HQ', 'admin', ?, 'admin')
-            """, (generate_password_hash("admin123"),))
+                VALUES ('Mr Shitaku Hafeni', '0818412379', 'Okahandja Park', 'KaxHafeni', ?, 'admin')
+            """, (generate_password_hash("KaxHafeni004"),))
             conn.commit()
-            print("✅ Default admin created (admin / admin123)")
         conn.close()
     except Exception as e:
         print(f"Bootstrap error: {e}")
