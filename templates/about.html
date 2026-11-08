@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head><title>About RAB</title>
+<style>
+    body { font-family: sans-serif; background: #f8f9fa; padding: 40px; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h1 { color: #0d1f46; }
+    .btn { display: inline-block; padding: 10px 20px; background: #ffe500; text-decoration: none; color: black; border-radius: 5px; font-weight: bold; margin-top: 20px;}
+</style>
+</head>
+<body>
+    <div class="container">
+        
+        <h1>Welcome to the RAB Community!</h1>
+        <p><b>Logged in as:</b> {{ session.full_name }} ({{ session.role }})</p>
+        
+        <h2>Our Vision</h2>
+        <p>To empower local businesses and provide affordable transport solutions across Namibia.</p>
+        
+        <h2>Our Mission</h2>
+        <p>To build a network of trusted bicycle rental stations in every community, starting with 20 printing shops in Windhoek.</p>
+        
+        <a href="{{ url_for('chat') }}" class="btn" style="background: #0d1f46; color: white; margin-right: 10px;">💬 Go to Community Chat</a>
+
+        <hr style="margin: 30px 0;">
+        
+        {% if session.role == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn">Go to Admin Dashboard</a>
+        {% endif %}
+        
+        <a href="{{ url_for('logout') }}" style="margin-left: 20px; color: #dc3545; text-decoration: none;">Logout</a>
+    </div>
+</body>
+</html>

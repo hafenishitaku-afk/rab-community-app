@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head><title>Edit Station</title>
+<style>
+    body { font-family: sans-serif; background: #f8f9fa; padding: 40px; }
+    .card { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    input { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+    button { padding: 10px 20px; background: #ffe500; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+</style>
+</head>
+<body>
+    <div class="card">
+        <h2>Edit Station: {{ user.full_name }}</h2>
+        <form method="post">
+            <label>Full Name</label>
+            <input type="text" name="full_name" value="{{ user.full_name }}" required>
+            
+            <label>Phone</label>
+            <input type="text" name="phone" value="{{ user.phone }}" required>
+            
+            <label>Location</label>
+            <input type="text" name="location" value="{{ user.location }}" required>
+            
+            <button type="submit">Save Changes</button>
+            <a href="{{ url_for('admin_dashboard') }}" style="margin-left: 10px; color: #667085; text-decoration: none;">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

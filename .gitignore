@@ -1,0 +1,6 @@
+community.db
+.venv/
+__pycache__/
+*.pyc
+static/audio/
+.env

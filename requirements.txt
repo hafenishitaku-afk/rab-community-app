@@ -1,0 +1,6 @@
+Flask-Limiter
+Flask
+Werkzeug
+python-dotenv
+psycopg2-binary
+gunicorn
