@@ -4,3 +4,8 @@ __pycache__/
 *.pyc
 static/audio/
 .env
+setup_community_db.py
+cleanup_admin.py
+change_admin.py
+restore_db.py
+fix_sequences.py
