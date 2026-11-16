@@ -85,25 +85,24 @@
         <a href="{{ url_for('logout') }}"class="btn"; style="margin-left: 20px; color: #dc3545; text-decoration: none; font-weight: bold;">Logout</a>
 
         <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
-
-        <h2>👥 Team Status</h2>
+        <h2>👥 Who is Online Right Now</h2>
         <div class="scroll" style="max-height: 300px; overflow-y: auto;">
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
                 <tr style="background: #f8f9fa; text-align: left;">
                     <th style="padding: 10px; border-bottom: 1px solid #ddd;">Name</th>
                     <th style="padding: 10px; border-bottom: 1px solid #ddd;">Role</th>
-                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">Status</th>
                 </tr>
                 {% for u in users %}
                 <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">{{ u.full_name }}</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-transform: capitalize;">{{ u.role }}</td>
                     <td style="padding: 10px; border-bottom: 1px solid #eee;">
-                        {% if u.status == 'Online' %}
-                            <span style="color: #16834b; font-weight: bold;">🟢 Online</span>
-                        {% else %}
-                            <span style="color: #667085;">⚪ Offline</span>
-                        {% endif %}
+                        <span style="color: #16834b; font-weight: bold;">🟢</span> {{ u.full_name }}
+                    </td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-transform: capitalize;">{{ u.role }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2" style="padding: 20px; text-align: center; color: #667085;">
+                        No one is online right now.
                     </td>
                 </tr>
                 {% endfor %}

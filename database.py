@@ -148,3 +148,15 @@ def get_single_value(cursor, query, params=None):
     else:
         # For SQLite tuple
         return result[0] if result else 0
+
+def get_single_value(cursor, query, params=None):
+    """Get a single value from a query (handles both SQLite and PostgreSQL)."""
+    result = execute_query(cursor, query, params).fetchone()
+    if result is None:
+        return 0
+    # For PostgreSQL with RealDictCursor, result is a dict
+    if isinstance(result, dict):
+        return list(result.values())[0] if result.values() else 0
+    else:
+        # For SQLite tuple
+        return result[0] if result else 0

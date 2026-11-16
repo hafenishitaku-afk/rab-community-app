@@ -107,35 +107,25 @@ def about():
     conn = db()
     c = conn.cursor()
     
-    # 1. Get all users and calculate their status
-    # In SQLite: (strftime('%s', 'now') - strftime('%s', last_active)) gives seconds difference
-    # In Postgres: EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_active))
     is_postgres = os.environ.get("DATABASE_URL") is not None
     
+    # ✅ 1. Get ONLY Online users
     if is_postgres:
         users = execute_query(c, """
-            SELECT id, full_name, role, 
-                   CASE 
-                       WHEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_active)) < 300 THEN 'Online'
-                       ELSE 'Offline'
-                   END as status
+            SELECT id, full_name, role 
             FROM users
-            ORDER BY status DESC, full_name ASC
+            WHERE EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_active)) < 300
+            ORDER BY full_name ASC
         """).fetchall()
     else:
-        # ✅ For SQLite, use the julianday function to get days, then multiply by 86400 for seconds
         users = execute_query(c, """
-            SELECT id, full_name, role, 
-                   CASE 
-                       WHEN (julianday('now') - julianday(last_active)) * 86400 < 300 THEN 'Online'
-                       ELSE 'Offline'
-                   END as status
+            SELECT id, full_name, role 
             FROM users
-            ORDER BY status DESC, full_name ASC
+            WHERE (julianday('now') - julianday(last_active)) * 86400 < 300
+            ORDER BY full_name ASC
         """).fetchall()
 
-    # 2. Count unread messages
-    # We count messages created AFTER the user's last_read_chat time
+    # ✅ 2. Count unread messages
     user_data = execute_query(c, "SELECT last_read_chat FROM users WHERE id = ?", (session["user_id"],)).fetchone()
     last_read = user_data["last_read_chat"] if user_data else None
     
