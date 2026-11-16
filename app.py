@@ -123,10 +123,11 @@ def about():
             ORDER BY status DESC, full_name ASC
         """).fetchall()
     else:
+        # ✅ For SQLite, use the julianday function to get days, then multiply by 86400 for seconds
         users = execute_query(c, """
             SELECT id, full_name, role, 
                    CASE 
-                       WHEN (strftime('%s', 'now') - strftime('%s', last_active)) < 300 THEN 'Online'
+                       WHEN (julianday('now') - julianday(last_active)) * 86400 < 300 THEN 'Online'
                        ELSE 'Offline'
                    END as status
             FROM users
