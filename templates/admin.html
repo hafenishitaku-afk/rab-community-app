@@ -1,23 +1,75 @@
 <!doctype html>
 <html>
-<head><title>Admin Dashboard</title>
-<style>
-    body { font-family: sans-serif; background: #f8f9fa; padding: 40px; }
-    .container { max-width: 900px; margin: 0 auto; }
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    input, select { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-    button { padding: 10px 20px; background: #ffe500; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
-    th { background: #f1f1f1; color: #0d1f46; }
-    .flash { padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #e8f7ef; color: #16834b; }
-</style>
+<head>
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: sans-serif;
+            background-image: url("{{ url_for('static', filename='register_bg.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding: 40px 20px;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        input, select { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 5px 0 15px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            box-sizing: border-box; 
+            outline: none;
+        }
+        button { 
+            padding: 10px 20px; 
+            background: #ffe500; 
+            border: none; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.02); }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+        th, td { 
+            text-align: left; 
+            padding: 12px; 
+            border-bottom: 1px solid #ddd; 
+        }
+        th { background: #f1f1f1; color: #0d1f46; }
+        .flash { padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #e8f7ef; color: #16834b; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Admin Dashboard</h1>
-        <a href="{{ url_for('about') }}">← Back to Main Site</a> | 
-        <a href="{{ url_for('logout') }}" style="color: #dc3545;">Logout</a>
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <h1 style="margin:0; color:#0d1f46;">Admin Dashboard</h1>
+            <div>
+                <a href="{{ url_for('about') }}" style="margin-right:15px; color:#0d1f46; font-weight:bold; text-decoration:none;">← Back to Main Site</a> | 
+                <a href="{{ url_for('logout') }}" style="color: #dc3545; font-weight:bold; text-decoration:none; margin-left:15px;">Logout</a>
+            </div>
+        </div>
         
         {% with msgs = get_flashed_messages(with_categories=true) %}
             {% for cat, msg in msgs %}
@@ -37,7 +89,7 @@
                 <label>Location (e.g., Katutura, Shop 1)</label>
                 <input type="text" name="location" required>
                 
-                <label>Username </label>
+                <label>Username</label>
                 <input type="text" name="username" required>
                 
                 <label>Password🗝️</label>
@@ -57,54 +109,43 @@
                     <th>Username</th>
                     <th>Actions</th>
                 </tr>
-
-                
                 {% for u in users %}
                 <tr>
                     <td><b>{{ u.full_name }}</b></td>
                     <td>{{ u.location }}</td>
                     <td>{{ u.phone }}</td>
                     <td>{{ u.username }}</td>
-                
-
-
                     <td>
-                        <a href="{{ url_for('edit_user', user_id=u.id) }}" style="color: #0d1f46;">✏️ Edit</a>
+                        <a href="{{ url_for('edit_user', user_id=u.id) }}" style="color: #0d1f46; text-decoration:none; font-weight:bold;">✏️ Edit</a>
                         
-                        <!-- 👇 NEW: Reset Password Button -->
                         <button type="button" 
                                 onclick="resetPassword({{ u.id }}, '{{ u.full_name }}')" 
-                                style="background:none; border:none; color:#ff8c00; cursor:pointer;">
+                                style="background:none; border:none; color:#ff8c00; cursor:pointer; font-weight:bold; margin-left:10px;">
                             🔑 Reset
                         </button>
                         
                         <form method="post" action="{{ url_for('delete_user', user_id=u.id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete {{ u.full_name }}?');">
-                            <button type="submit" style="background:none; border:none; color:#dc3545; cursor:pointer;">🗑️ Delete</button>
+                            <button type="submit" style="background:none; border:none; color:#dc3545; cursor:pointer; font-weight:bold; margin-left:10px;">🗑️ Delete</button>
                         </form>
                     </td>
-
                  </tr>
                 {% endfor %}
             </table>
         </div>
     </div>
 
-    <!-- 👇 NEW: Hidden Form for Password Reset -->
     <form method="post" id="resetForm" style="display: none;">
         <input type="hidden" name="new_password" id="reset_password_input">
     </form>
 
     <script>
         function resetPassword(userId, userName) {
-            // Ask the admin for the new password
             var newPass = prompt("Enter a new temporary password for " + userName + " (min 6 characters):");
-            
             if (newPass !== null && newPass.trim() !== "") {
                 if (newPass.length < 6) {
                     alert("Password must be at least 6 characters.");
                     return;
                 }
-                // Set the form action dynamically and submit
                 var form = document.getElementById('resetForm');
                 form.action = "/admin/reset-password/" + userId;
                 document.getElementById('reset_password_input').value = newPass;
@@ -112,7 +153,5 @@
             }
         }
     </script>
-
-
 </body>
 </html>

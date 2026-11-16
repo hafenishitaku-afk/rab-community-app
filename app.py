@@ -2,13 +2,31 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 import os
-from database import db, execute_query, init_db
+from database import db, execute_query, init_db, get_single_value
 from datetime import datetime, timedelta
 import os
 import uuid
 
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+
+
+import cloudinary
+import cloudinary.uploader
+
+# ✅ Cloudinary configuration
+CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME")
+CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY")
+CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET")
+
+if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
+    cloudinary.config(
+        cloud_name=CLOUDINARY_CLOUD_NAME,
+        api_key=CLOUDINARY_API_KEY,
+        api_secret=CLOUDINARY_API_SECRET
+    )
+    print("✅ Cloudinary configured for audio!")
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "community-dev-secret")
@@ -86,8 +104,51 @@ def logout():
 @login_required
 def about():
     """The Vision & Mission page for staff."""
-    return render_template("about.html")
+    conn = db()
+    c = conn.cursor()
+    
+    # 1. Get all users and calculate their status
+    # In SQLite: (strftime('%s', 'now') - strftime('%s', last_active)) gives seconds difference
+    # In Postgres: EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_active))
+    is_postgres = os.environ.get("DATABASE_URL") is not None
+    
+    if is_postgres:
+        users = execute_query(c, """
+            SELECT id, full_name, role, 
+                   CASE 
+                       WHEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_active)) < 300 THEN 'Online'
+                       ELSE 'Offline'
+                   END as status
+            FROM users
+            ORDER BY status DESC, full_name ASC
+        """).fetchall()
+    else:
+        users = execute_query(c, """
+            SELECT id, full_name, role, 
+                   CASE 
+                       WHEN (strftime('%s', 'now') - strftime('%s', last_active)) < 300 THEN 'Online'
+                       ELSE 'Offline'
+                   END as status
+            FROM users
+            ORDER BY status DESC, full_name ASC
+        """).fetchall()
 
+    # 2. Count unread messages
+    # We count messages created AFTER the user's last_read_chat time
+    user_data = execute_query(c, "SELECT last_read_chat FROM users WHERE id = ?", (session["user_id"],)).fetchone()
+    last_read = user_data["last_read_chat"] if user_data else None
+    
+    if last_read:
+        unread_count = get_single_value(c, """
+            SELECT COUNT(*) FROM messages 
+            WHERE created_at > ? AND user_id != ?
+        """, (last_read, session["user_id"]))
+    else:
+        unread_count = 0
+
+    conn.close()
+    
+    return render_template("about.html", users=users, unread_count=unread_count)
 
 
 @app.route("/privacy")
@@ -100,6 +161,12 @@ def privacy():
 def chat():
     conn = db()
     c = conn.cursor()
+    # ✅ Mark chat as read
+    execute_query(c, """
+        UPDATE users SET last_read_chat = CURRENT_TIMESTAMP WHERE id = ?
+    """, (session["user_id"],))
+    conn.commit()    
+
     
     if request.method == "POST":
         content = request.form.get("content", "").strip()
@@ -116,19 +183,38 @@ def chat():
         # Handle Audio Upload
         audio_data = request.files.get("audio_data")
         if audio_data:
-            # Generate a unique filename
-            filename = f"voice_{session['user_id']}_{uuid.uuid4().hex}.webm"
-            filepath = os.path.join(AUDIO_FOLDER, filename)
-            audio_data.save(filepath)
-            
-            # Save path to database (relative to static folder)
-            db_path = f"audio/{filename}"
+            uploaded = False
+            db_path = None
+
+            # ✅ Try uploading to Cloudinary first
+            if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
+                try:
+                    result = cloudinary.uploader.upload(
+                        audio_data, 
+                        resource_type="video", # Cloudinary uses 'video' for audio
+                        folder="rab_community_audio"
+                    )
+                    db_path = result["secure_url"]
+                    uploaded = True
+                    print("✅ Audio uploaded to Cloudinary")
+                except Exception as e:
+                    print(f"❌ Cloudinary audio upload failed: {e}")
+
+            # Fallback to local (if Cloudinary fails or is not configured)
+            if not uploaded:
+                filename = f"voice_{session['user_id']}_{uuid.uuid4().hex}.webm"
+                filepath = os.path.join(AUDIO_FOLDER, filename)
+                audio_data.save(filepath)
+                db_path = f"audio/{filename}"
+                print("⚠️ Audio saved locally (will not persist on Render)")
+
             execute_query(c, """
                 INSERT INTO voice_notes (user_id, file_path)
                 VALUES (?, ?)
             """, (session["user_id"], db_path))
             conn.commit()
             return redirect(url_for("chat"))
+    
     
     # Fetch Text Messages
     messages = execute_query(c, """
@@ -336,6 +422,23 @@ def edit_user(user_id):
         
     conn.close()
     return render_template("edit_user.html", user=user)
+
+@app.before_request
+def update_last_active():
+    """Updates the user's last_active timestamp on every request."""
+    if session.get("user_id"):
+        conn = db()
+        c = conn.cursor()
+        try:
+            execute_query(c, """
+                UPDATE users SET last_active = CURRENT_TIMESTAMP WHERE id = ?
+            """, (session["user_id"],))
+            conn.commit()
+        except Exception as e:
+            print(f"Error updating activity: {e}")
+        finally:
+            conn.close()
+
 
 @app.route("/admin/delete-user/<int:user_id>", methods=["POST"])
 @login_required

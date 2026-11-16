@@ -1,16 +1,58 @@
 <!doctype html>
 <html>
-<head><title>Edit Station</title>
-<style>
-    body { font-family: sans-serif; background: #f8f9fa; padding: 40px; }
-    .card { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    input { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-    button { padding: 10px 20px; background: #ffe500; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-</style>
+<head>
+    <title>Edit Station</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: sans-serif;
+            background-image: url("{{ url_for('static', filename='register_bg.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 5px 0 15px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            box-sizing: border-box; 
+            outline: none;
+        }
+        button { 
+            padding: 10px 20px; 
+            background: #ffe500; 
+            border: none; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.02); }
+    </style>
 </head>
 <body>
     <div class="card">
-        <h2>Edit Station: {{ user.full_name }}</h2>
+        <h2 style="color:#0d1f46; margin-top:0;">Edit Station: {{ user.full_name }}</h2>
         <form method="post">
             <label>Full Name</label>
             <input type="text" name="full_name" value="{{ user.full_name }}" required>
@@ -22,7 +64,7 @@
             <input type="text" name="location" value="{{ user.location }}" required>
             
             <button type="submit">Save Changes</button>
-            <a href="{{ url_for('admin_dashboard') }}" style="margin-left: 10px; color: #667085; text-decoration: none;">Cancel</a>
+            <a href="{{ url_for('admin_dashboard') }}" style="margin-left: 10px; color: #667085; text-decoration: none; font-weight: bold;">Cancel</a>
         </form>
     </div>
 </body>

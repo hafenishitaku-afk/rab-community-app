@@ -4,9 +4,33 @@
     <title>Privacy Policy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; background: #f8f9fa; padding: 20px; color: #333; }
-        .container { max-width: 700px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #0d1f46; }
+        body {
+            font-family: sans-serif;
+            background-image: url("{{ url_for('static', filename='register_bg.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding: 40px 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #333;
+        }
+        h1 { color: #0d1f46; margin-top: 0; }
         h3 { color: #0d1f46; margin-top: 25px; }
         a { display: inline-block; margin-top: 20px; text-decoration: none; color: #dc3545; font-weight: bold; }
     </style>
@@ -32,8 +56,6 @@
 
         <h3>5. Your Rights</h3>
         <p>You have the right to request a copy of your data, or ask us to delete your account at any time. To do so, contact the Administrator.</p>
-
-        <a href="{{ url_for('privacy') }}" style="margin-left: 20px; color: #0d1f46; text-decoration: none;">🔒 Privacy Policy</a>
 
         <a href="{{ url_for('about') }}">← Back to Dashboard</a>
     </div>

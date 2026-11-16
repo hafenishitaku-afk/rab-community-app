@@ -1,34 +1,115 @@
 <!doctype html>
 <html>
-<head><title>About RAB</title>
-<style>
-    body { font-family: sans-serif; background: #f8f9fa; padding: 40px; }
-    .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    h1 { color: #0d1f46; }
-    .btn { display: inline-block; padding: 10px 20px; background: #ffe500; text-decoration: none; color: black; border-radius: 5px; font-weight: bold; margin-top: 20px;}
-</style>
+<head>
+    <title>About RAB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            /* ✅ Background Image Setup */
+            background-image: url("{{ url_for('static', filename='community.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            /* ✅ Dark overlay for readability */
+            
+        }
+
+        .container {
+            /* ✅ Glassmorphism Effect - Made more solid (0.98) */
+            background: transparent;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            /* ✅ Ensure all text is dark by default */
+
+        }
+
+        h1 { color: yellow; margin-top: 0;font-weight: 80px; }
+        h2 { color: white; }
+        h3 { color: #72df0d; font-weight: 20px; }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #ffe500;
+            text-decoration: none;
+            color: #111;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: scale(1.02); background: #ffd000; }
+    </style>
 </head>
 <body>
     <div class="container">
         
-        <h1>Welcome to the RAB Community!</h1>
-        <p><b>Logged in as:</b> {{ session.full_name }} ({{ session.role }})</p>
+        <h1>Welcome to the RAB BICYCLE SOLUTIONS CC Community!</h1>
+        <h3><b>Logged in as:</b> {{ session.full_name }} ({{ session.role }})</h3>
         
         <h2>Our Vision</h2>
-        <p>To empower local businesses and provide affordable transport solutions across Namibia.</p>
+        <h3>To empower local businesses and provide affordable transport solutions across Namibia.</h3>
         
         <h2>Our Mission</h2>
-        <p>To build a network of trusted bicycle rental stations in every community, starting with 20 printing shops in Windhoek.</p>
+        <h3>To build a network of trusted bicycle rental stations in every community, starting with 20 printing shops in Windhoek.</h3>
         
-        <a href="{{ url_for('chat') }}" class="btn" style="background: #0d1f46; color: white; margin-right: 10px;">💬 Go to Community Chat</a>
+        <a href="{{ url_for('chat') }}" class="btn" style="background: #0d1f46; color: white; display: inline-flex; align-items: center; gap: 10px;">
+            💬 Go to Community Chat
+            {% if unread_count > 0 %}
+                <span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                    {{ unread_count }} New
+                </span>
+            {% endif %}
+        </a>
 
-        <hr style="margin: 30px 0;">
+
+
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
         
         {% if session.role == 'admin' %}
         <a href="{{ url_for('admin_dashboard') }}" class="btn">Go to Admin Dashboard</a>
         {% endif %}
         
-        <a href="{{ url_for('logout') }}" style="margin-left: 20px; color: #dc3545; text-decoration: none;">Logout</a>
+        <a href="{{ url_for('logout') }}"class="btn"; style="margin-left: 20px; color: #dc3545; text-decoration: none; font-weight: bold;">Logout</a>
+
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
+
+        <h2>👥 Team Status</h2>
+        <div class="scroll" style="max-height: 300px; overflow-y: auto;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <tr style="background: #f8f9fa; text-align: left;">
+                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">Name</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">Role</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">Status</th>
+                </tr>
+                {% for u in users %}
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">{{ u.full_name }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-transform: capitalize;">{{ u.role }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                        {% if u.status == 'Online' %}
+                            <span style="color: #16834b; font-weight: bold;">🟢 Online</span>
+                        {% else %}
+                            <span style="color: #667085;">⚪ Offline</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
     </div>
 </body>
 </html>

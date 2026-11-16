@@ -54,6 +54,8 @@ def init_db():
                 username TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 role TEXT DEFAULT 'staff',
+                last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- ✅ ADDED
+                last_read_chat TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- ✅ ADDED
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
@@ -76,7 +78,7 @@ def init_db():
         """)
     else:
         c.executescript("""
-            CREATE TABLE IF NOT EXISTS users(
+             CREATE TABLE IF NOT EXISTS users(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 full_name TEXT NOT NULL,
                 phone TEXT NOT NULL,
@@ -84,9 +86,10 @@ def init_db():
                 username TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 role TEXT DEFAULT 'staff',
+                last_active TEXT DEFAULT CURRENT_TIMESTAMP, -- ✅ ADDED
+                last_read_chat TEXT DEFAULT CURRENT_TIMESTAMP, -- ✅ ADDED
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            );
-            
+            );           
             CREATE TABLE IF NOT EXISTS messages(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
@@ -104,6 +107,44 @@ def init_db():
             );
         """)
         
+
+
+    # ✅ AUTO-MIGRATION: Add new columns if they don't exist
+    try:
+        if is_postgres:
+            execute_query(c, "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP;")
+            execute_query(c, "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_read_chat TIMESTAMP DEFAULT CURRENT_TIMESTAMP;")
+
+        else:
+            # SQLite requires checking PRAGMA first
+            existing_cols = [row[1] for row in c.execute("PRAGMA table_info(users)").fetchall()]
+            if "last_active" not in existing_cols:
+                c.execute("ALTER TABLE users ADD COLUMN last_active TEXT")
+            if "last_read_chat" not in existing_cols:
+                c.execute("ALTER TABLE users ADD COLUMN last_read_chat TEXT")
+                
+            # ✅ Update existing users so they don't have NULL values
+            c.execute("UPDATE users SET last_active = CURRENT_TIMESTAMP WHERE last_active IS NULL")
+            c.execute("UPDATE users SET last_read_chat = CURRENT_TIMESTAMP WHERE last_read_chat IS NULL")
+
+    except Exception as e:
+        print(f"⚠️ Migration error: {e}")
     conn.commit()
     conn.close()
     print("✅ Community Database initialized.")
+
+
+
+
+def get_single_value(cursor, query, params=None):
+    """Get a single value from a query (handles both SQLite and PostgreSQL)."""
+    result = execute_query(cursor, query, params).fetchone()
+    if result is None:
+        return 0
+    # For PostgreSQL with RealDictCursor, result is a dict
+    if isinstance(result, dict):
+        # Get the first value from the dict
+        return list(result.values())[0] if result.values() else 0
+    else:
+        # For SQLite tuple
+        return result[0] if result else 0

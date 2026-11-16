@@ -1,25 +1,95 @@
 <!doctype html>
 <html>
-<head><title>RAB Community Login</title>
-<style>
-    body { font-family: sans-serif; background: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-    .card { background: white; padding: 100px; border-radius: 12px; box-shadow: 0 4px 15px rgba(7, 139, 29, 0.1); width: 300px; text-align: center; }
-    h2 { color: #0d1f46; }
-    input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #d446a5; border-radius: 5px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; background: #ffe500; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .flash { padding: 10px; margin-bottom: 10px; border-radius: 5px; font-size: 14px; }
-    .danger { background: #fdeceb; color: #dc3545; }
-</style>
+<head>
+    <title>RAB Community Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            /* ✅ Background Image Setup */
+            background-image: url("{{ url_for('static', filename='login.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            /* ✅ Dark overlay so the card pops */
+            /* background-color: rgba(13, 31, 70, 0.6);  */
+            /* background-blend-mode: overlay; */
+        }
+
+        .card {
+            /* ✅ Glassmorphism Effect */
+            background: transparent;
+            /* backdrop-filter: blur(12px); */
+            padding: 40px;
+            border-radius: 16px;
+            /* box-shadow: 0 25px 50px rgba(0,0,0,0.6); */
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-sizing: border-box;
+        }
+
+        h2 { color: #0d1f46; margin-top: 0; font-size: 26px; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 15px;
+        }
+        input:focus { border-color: #0d1f46; }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #ffe500;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.02); background: #ffd000; }
+        
+        .flash {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .danger { background: #fdeceb; color: #dc3545; }
+        .success { background: #e8f7ef; color: #16834b; }
+
+        .logo-img {
+            height: 120px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
     <div class="card">
-      
         <h2>RAB Community</h2>
 
-        <img src="{{ url_for('static', filename='Modern RAB Rent A Bike Office.png') }}" 
-        alt="RAB" style="height:200px; width:310px; margin-bottom:10px;"> 
+        <!-- ✅ Using your Logo -->
+        <img src="{{ url_for('static', filename='Mylogo.png') }}" 
+             alt="RAB Logo" class="logo-img"> 
 
-        <p style="color:#667085;">Staff & Admin Login</p>
+        <p style="color:#667085; margin-bottom: 20px;">Staff & Admin Login</p>
         
         {% with msgs = get_flashed_messages(with_categories=true) %}
             {% for cat, msg in msgs %}
