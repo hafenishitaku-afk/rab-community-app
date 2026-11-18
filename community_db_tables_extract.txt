@@ -1,0 +1,96 @@
+﻿
+> audit_app_tables.py:17:    ("CREATE TABLE", r"\bCREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[\"`]?([\w.]+)"),
+  audit_app_tables.py:18:    ("INSERT INTO", r"\bINSERT\s+INTO\s+[\"`]?([\w.]+)"),
+  audit_app_tables.py:19:    ("UPDATE", r"\bUPDATE\s+[\"`]?([\w.]+)\s+SET\b"),
+  audit_app_tables.py:20:    ("DELETE FROM", r"\bDELETE\s+FROM\s+[\"`]?([\w.]+)"),
+  audit_app_tables.py:21:    ("FROM", r"\bFROM\s+[\"`]?([\w.]+)"),
+  audit_app_tables.py:22:    ("JOIN", r"\bJOIN\s+[\"`]?([\w.]+)"),
+  audit_app_tables.py:23:    ("REFERENCES", r"\bREFERENCES\s+[\"`]?([\w.]+)")
+  audit_app_tables.py:24:]
+  audit_app_tables.py:25:
+  audit_app_tables.py:26:EXCLUDED_WORDS = {
+  audit_app_tables.py:27:    "select", "where", "values", "set", "returning",
+  audit_app_tables.py:28:    "on", "using", "lateral", "only", "dual"
+  audit_app_tables.py:29:}
+  audit_app_tables.py:30:
+  audit_app_tables.py:31:results = defaultdict(list)
+  audit_app_tables.py:32:
+> database.py:42:    """Create tables for Community App."""
+  database.py:43:    conn = db()
+  database.py:44:    c = conn.cursor()
+  database.py:45:    is_postgres = os.environ.get("DATABASE_URL") is not None
+  database.py:46:    
+  database.py:47:    if is_postgres:
+  database.py:48:        execute_query(c, """
+> database.py:49:            CREATE TABLE IF NOT EXISTS users(
+  database.py:50:                id SERIAL PRIMARY KEY,
+  database.py:51:                full_name TEXT NOT NULL,
+  database.py:52:                phone TEXT NOT NULL,
+  database.py:53:                location TEXT NOT NULL,
+  database.py:54:                username TEXT UNIQUE NOT NULL,
+  database.py:55:                password_hash TEXT NOT NULL,
+  database.py:56:                role TEXT DEFAULT 'staff',
+  database.py:57:                last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- ✅ ADDED
+  database.py:58:                last_read_chat TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- ✅ ADDED
+  database.py:59:                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  database.py:60:            );
+  database.py:61:        """)
+  database.py:62:        execute_query(c, """
+> database.py:63:            CREATE TABLE IF NOT EXISTS messages(
+  database.py:64:                id SERIAL PRIMARY KEY,
+  database.py:65:                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  database.py:66:                content TEXT NOT NULL,
+  database.py:67:                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  database.py:68:            );
+  database.py:69:        """)
+  database.py:70:        # ✅ NEW: Voice Notes Table
+  database.py:71:        execute_query(c, """
+> database.py:72:            CREATE TABLE IF NOT EXISTS voice_notes(
+  database.py:73:                id SERIAL PRIMARY KEY,
+  database.py:74:                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  database.py:75:                file_path TEXT NOT NULL,
+  database.py:76:                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  database.py:77:            );
+  database.py:78:        """)
+  database.py:79:    else:
+  database.py:80:        c.executescript("""
+> database.py:81:             CREATE TABLE IF NOT EXISTS users(
+  database.py:82:                id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.py:83:                full_name TEXT NOT NULL,
+  database.py:84:                phone TEXT NOT NULL,
+  database.py:85:                location TEXT NOT NULL,
+  database.py:86:                username TEXT UNIQUE NOT NULL,
+  database.py:87:                password_hash TEXT NOT NULL,
+  database.py:88:                role TEXT DEFAULT 'staff',
+  database.py:89:                last_active TEXT DEFAULT CURRENT_TIMESTAMP, -- ✅ ADDED
+  database.py:90:                last_read_chat TEXT DEFAULT CURRENT_TIMESTAMP, -- ✅ ADDED
+  database.py:91:                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  database.py:92:            );           
+> database.py:93:            CREATE TABLE IF NOT EXISTS messages(
+  database.py:94:                id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.py:95:                user_id INTEGER NOT NULL,
+  database.py:96:                content TEXT NOT NULL,
+  database.py:97:                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  database.py:98:                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+  database.py:99:            );
+  database.py:100:
+> database.py:101:            CREATE TABLE IF NOT EXISTS voice_notes(
+  database.py:102:                id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.py:103:                user_id INTEGER NOT NULL,
+  database.py:104:                file_path TEXT NOT NULL,
+  database.py:105:                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  database.py:106:                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+  database.py:107:            );
+  database.py:108:        """)
+  database.py:109:        
+  database.py:110:
+  database.py:111:
+  database.py:112:    # ✅ AUTO-MIGRATION: Add new columns if they don't exist
+  database.py:113:    try:
+  database.py:114:        if is_postgres:
+  database.py:115:            execute_query(c, "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active TIMESTAMP 
+DEFAULT CURRENT_TIMESTAMP;")
+  database.py:116:            execute_query(c, "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_read_chat 
+TIMESTAMP DEFAULT CURRENT_TIMESTAMP;")
+
+

@@ -1,0 +1,86 @@
+RAB DAILY RENTAL APP - TABLE AUDIT
+
+
+TABLE: 
+REFERENCES | audit_app_tables.py | Line 68
+
+TABLE: a
+FROM | database.py | Line 136
+FROM | database.py | Line 149
+
+TABLE: collections
+FROM | audit_app_tables.py | Line 5
+
+TABLE: database
+FROM | app.py | Line 5
+
+TABLE: datetime
+FROM | app.py | Line 6
+
+TABLE: flask
+FROM | app.py | Line 1
+
+TABLE: flask_limiter
+FROM | app.py | Line 10
+
+TABLE: functools
+FROM | app.py | Line 3
+
+TABLE: messages
+INSERT INTO | app.py | Line 159
+DELETE FROM | app.py | Line 254
+FROM | app.py | Line 126
+FROM | app.py | Line 199
+FROM | app.py | Line 254
+CREATE TABLE | database.py | Line 63
+CREATE TABLE | database.py | Line 93
+
+TABLE: pathlib
+FROM | audit_app_tables.py | Line 4
+FROM | database.py | Line 3
+
+TABLE: security
+FROM | app.py | Line 2
+
+TABLE: users
+INSERT INTO | app.py | Line 344
+INSERT INTO | app.py | Line 463
+UPDATE | app.py | Line 149
+UPDATE | app.py | Line 378
+UPDATE | app.py | Line 398
+UPDATE | app.py | Line 442
+DELETE FROM | app.py | Line 419
+FROM | app.py | Line 71
+FROM | app.py | Line 109
+FROM | app.py | Line 116
+FROM | app.py | Line 121
+FROM | app.py | Line 322
+FROM | app.py | Line 365
+FROM | app.py | Line 419
+FROM | app.py | Line 459
+JOIN | app.py | Line 200
+JOIN | app.py | Line 206
+DELETE FROM | cleanup_admin.py | Line 11
+FROM | cleanup_admin.py | Line 11
+FROM | cleanup_admin.py | Line 16
+CREATE TABLE | database.py | Line 49
+CREATE TABLE | database.py | Line 81
+UPDATE | database.py | Line 123
+UPDATE | database.py | Line 124
+REFERENCES | database.py | Line 65
+REFERENCES | database.py | Line 74
+REFERENCES | database.py | Line 98
+REFERENCES | database.py | Line 106
+UPDATE | fix_community_db.py | Line 19
+UPDATE | fix_community_db.py | Line 20
+
+TABLE: util
+FROM | app.py | Line 11
+
+TABLE: voice_notes
+INSERT INTO | app.py | Line 191
+DELETE FROM | app.py | Line 256
+FROM | app.py | Line 205
+FROM | app.py | Line 256
+CREATE TABLE | database.py | Line 72
+CREATE TABLE | database.py | Line 101
